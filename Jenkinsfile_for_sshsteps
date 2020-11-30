@@ -2,8 +2,8 @@ def useTest = true
 def useBuild = true
 def useDeploy = true
 def remote = [:]
-remote.name = "test"
-remote.host = "ec2-55-333-222-111.ap-northeast-2.compute.amazonaws.com"
+remote.name = "engo"
+remote.host = "ec2-15-164-217-103.ap-northeast-2.compute.amazonaws.com"
 remote.allowAnyHosts = true
 
 node('') {
@@ -106,8 +106,9 @@ node('') {
 				withCredentials([sshUserPrivateKey(credentialsId: 'pdm-englishgo', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'ubuntu')]) {
 					remote.user = ubuntu
 					remote.identityFile = identity
-					sshCommand remote: remote, command: 'cd /home/ubuntu/webapps/ROOT; rm -rf WEB-INF; jar -xvf *.war'
+					/* sshPut remote: remote, from: 'target/englishgo-0.0.1-SNAPSHOT.war', into: '/home/ubuntu/webapps/ROOT' */
 					sshPut remote: remote, from: 'target/', filterRegex: /.war$/, into: '/home/ubuntu/webapps/ROOT'
+					sshCommand remote: remote, command: 'cd /home/ubuntu/webapps/ROOT; rm -rf WEB-INF; jar -xvf target/*.war'
 					sshCommand remote: remote, command: 'sudo service tomcat8 restart'
 					slackSend (channel: '##build-deploy', color: '#00FF00', message: "Deploy Success: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 				}
